@@ -19,14 +19,116 @@ df['gluc'] = df['gluc'].agg(lambda x: 1 if x > 1 else 0)
 # Draw Categorical Plot
 def draw_cat_plot():
     # Create DataFrame for cat plot using `pd.melt` using just the values from 'cholesterol', 'gluc', 'smoke', 'alco', 'active', and 'overweight'.
-    df_cat = None
+    # create DataFrame with 'cardio', 'variable' and 'value' columns
+    df_cat = pd.melt(df, id_vars=['cardio'], value_vars=['active', 'alco', 'cholesterol', 'gluc', 'overweight', 'smoke'])
+    # df_cat structure:
+    #         cardio variable  value
+    # 0            0   active      1
+    # 1            1   active      1
+    # 2            1   active      0
+    # 3            1   active      1
+    # 4            0   active      0
+    # ...        ...      ...    ...
+    # 419995       0    smoke      1
+    # 419996       1    smoke      0
+    # 419997       1    smoke      0
+    # 419998       1    smoke      0
+    # 419999       0    smoke      0
 
+    # condense DataFrame to indexes only (no columns) with 'value' row counts defining the structure
+    df_cat = df_cat.groupby(['cardio', 'variable', 'value'])['value'].count()
+    # df_cat structure:
+    # cardio  variable     value
+    # 0       active       0         6378
+    #                      1        28643
+    #         alco         0        33080
+    #                      1         1941
+    #         cholesterol  0        29330
+    #                      1         5691
+    #         gluc         0        30894
+    #                      1         4127
+    #         overweight   0        15915
+    #                      1        19106
+    #         smoke        0        31781
+    #                      1         3240
+    # 1       active       0         7361
+    #                      1        27618
+    #         alco         0        33156
+    #                      1         1823
+    #         cholesterol  0        23055
+    #                      1        11924
+    #         gluc         0        28585
+    #                      1         6394
+    #         overweight   0        10539
+    #                      1        24440
+    #         smoke        0        32050
+    #                      1         2929
 
-    # Group and reformat the data to split it by 'cardio'. Show the counts of each feature. You will have to rename one of the collumns for the catplot to work correctly.
-    df_cat = None
+    # df_cat.index is a MultiIndex with names 'cardio', 'variable' and 'value'
+
+    # add 'value' column with the values of the 'value' index
+    df_cat = pd.DataFrame(df_cat)
+    # df_cat structure:
+    #                           value
+    # cardio variable    value       
+    # 0      active      0       6378
+    #                    1      28643
+    #        alco        0      33080
+    #                    1       1941
+    #        cholesterol 0      29330
+    #                    1       5691
+    #        gluc        0      30894
+    #                    1       4127
+    #        overweight  0      15915
+    #                    1      19106
+    #        smoke       0      31781
+    #                    1       3240
+    # 1      active      0       7361
+    #                    1      27618
+    #        alco        0      33156
+    #                    1       1823
+    #        cholesterol 0      23055
+    #                    1      11924
+    #        gluc        0      28585
+    #                    1       6394
+    #        overweight  0      10539
+    #                    1      24440
+    #        smoke       0      32050
+    #                    1       2929
+    
+    # rename the 'value' column to 'total' and then convert all indexes ('cardio', 'variable' and 'value') to columns by resetting the index
+    df_cat = df_cat.rename(columns={ 'value': 'total' }).reset_index()
+    # df_cat structure:
+    #     cardio     variable  value  total
+    # 0        0       active      0   6378
+    # 1        0       active      1  28643
+    # 2        0         alco      0  33080
+    # 3        0         alco      1   1941
+    # 4        0  cholesterol      0  29330
+    # 5        0  cholesterol      1   5691
+    # 6        0         gluc      0  30894
+    # 7        0         gluc      1   4127
+    # 8        0   overweight      0  15915
+    # 9        0   overweight      1  19106
+    # 10       0        smoke      0  31781
+    # 11       0        smoke      1   3240
+    # 12       1       active      0   7361
+    # 13       1       active      1  27618
+    # 14       1         alco      0  33156
+    # 15       1         alco      1   1823
+    # 16       1  cholesterol      0  23055
+    # 17       1  cholesterol      1  11924
+    # 18       1         gluc      0  28585
+    # 19       1         gluc      1   6394
+    # 20       1   overweight      0  10539
+    # 21       1   overweight      1  24440
+    # 22       1        smoke      0  32050
+    # 23       1        smoke      1   2929
 
     # Draw the catplot with 'sns.catplot()'
-
+    # make two bar charts with the two 'cardio' values (0 and 1) and with the 'variable' column as the x axis and the 'total' column as the y axis
+    # each 'variable' will have two bars based on the 'value' column (0 and 1)
+    fig = sns.catplot(data=df_cat, col="cardio", x="variable", y="total", hue="value", kind="bar").fig
 
 
     # Do not modify the next two lines
