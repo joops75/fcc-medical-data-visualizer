@@ -128,7 +128,7 @@ def draw_cat_plot():
     # Draw the catplot with 'sns.catplot()'
     # make two bar charts with the two 'cardio' values (0 and 1) and with the 'variable' column as the x axis and the 'total' column as the y axis
     # each 'variable' will have two bars based on the 'value' column (0 and 1)
-    fig = sns.catplot(data=df_cat, col="cardio", x="variable", y="total", hue="value", kind="bar").fig
+    fig = sns.catplot(data=df_cat, col="cardio", x="variable", y="total", hue="value", kind="bar", facet_kws={ 'gridspec_kws': { 'hspace': 0.1 } }).fig
 
 
     # Do not modify the next two lines
