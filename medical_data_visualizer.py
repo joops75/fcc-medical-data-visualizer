@@ -139,22 +139,30 @@ def draw_cat_plot():
 # Draw Heat Map
 def draw_heat_map():
     # Clean the data
-    df_heat = None
-
+    df_heat = df[
+      # remove diastolic pressure higher than systolic
+      (df['ap_lo'] <= df['ap_hi']) &
+      # remove height less than the 2.5th percentile
+      (df['height'] >= df['height'].quantile(0.025)) &
+      # remove height more than the 97.5th percentile
+      (df['height'] <= df['height'].quantile(0.975)) &
+      # remove weight less than the 2.5th percentile
+      (df['weight'] >= df['weight'].quantile(0.025)) &
+      # remove weight more than the 97.5th percentile
+      (df['weight'] <= df['weight'].quantile(0.975))
+    ]
     # Calculate the correlation matrix
-    corr = None
+    corr = df_heat.corr()
 
     # Generate a mask for the upper triangle
-    mask = None
+    mask = np.zeros_like(corr)
+    # Set up the mask[np.triu_indices_from(mask)] = True figure
+    mask[np.triu_indices_from(mask)] = True
 
-
-
-    # Set up the matplotlib figure
-    fig, ax = None
+    fig, ax = plt.subplots(figsize=(8,7))
 
     # Draw the heatmap with 'sns.heatmap()'
-
-
+    sns.heatmap(corr, mask=mask, center=0, annot=True, fmt='.1f', linewidths=.5, square=True, cbar_kws={ 'shrink': 0.5 })
 
     # Do not modify the next two lines
     fig.savefig('heatmap.png')
